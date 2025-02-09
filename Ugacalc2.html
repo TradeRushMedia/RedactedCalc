@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+        }
+        #calculator {
+            background: #000; /* Base background color */
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            width: 80%; 
+            max-width: 400px;
+            text-align: center;
+            border: 2px solid #FFD700;
+            position: relative; /* Needed for absolute positioning of child elements */
+        }
+        .calculator-image {
+            position: absolute;
+            width: 50px; /* Set your desired width */
+            height: auto; /* Keeps aspect ratio */
+            z-index: 0; /* Behind other content */
+        }
+        #imageTopRight {
+            top: 5px;
+            right: 5px;
+        }
+        .data-box, #inputBox {
+            border: 1px solid #FFD700;
+            padding: 2px;
+            margin: 2px 1px; /* Reduced horizontal margin */
+            border-radius: 8px;
+            width: 90px;
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black for better contrast */
+            z-index: 1; /* Above the images */
+        }
+        .data-box p {
+            margin: 0;
+            font-size: 9px;
+        }
+        .data-box span {
+            font-weight: bold;
+            color: #FFD700;
+        }
+        input[type="number"], input[type="checkbox"], input[type="text"] {
+            width: 100%;
+            padding: 2px;
+            margin: 1px 0;
+            box-sizing: border-box;
+            font-size: 13px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #FFD700;
+            border: 1px solid #FFD700;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 1; /* Above the images */
+            /* Ensure text input doesn't overflow */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        input[type="checkbox"] {
+            width: auto;
+            vertical-align: middle;
+        }
+        button {
+            width: 100%;
+            padding: 5px;
+            background-color: #FFD700;
+            color: #000;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 3px; /* Adjusted to match top spacing */
+            z-index: 1; /* Above the images */
+        }
+        button:hover {
+            background-color: #FFD100;
+        }
+        .calculator-row {
+            margin-bottom: 3px;
+            z-index: 1; /* Above the images */
+        }
+        #inputBox label {
+            font-size: 10px;
+        }
+        .checkbox-label {
+            display: inline-block;
+            text-align: left;
+            width: auto;
+            font-size: 10px;
+        }
+        .result-columns {
+            display: flex;
+            justify-content: center; /* Center the columns */
+            margin-top: 0;
+            padding: 0;
+            gap: 1px; /* Small gap between columns */
+        }
+        .column {
+            flex: 0 0 auto; /* Prevent columns from growing, keep them at their natural width */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* Add this to control space between columns in results */
+        .column .data-box:not(:first-child) {
+            margin-top: 3px; /* Match the spacing used in the top rows */
+        }
+    </style>
+</head>
+<body>
+    <div id="calculator">
+        <img id="imageTopRight" class="calculator-image" src="https://cdn.xrp.cafe/99287cfdc27d-4bca-9068-497940134d73.webp" alt="Top Right Image">
+        <div class="calculator-row">
+            <div id="inputBox">
+                <label for="xrpPrice">XRP Price:</label>
+                <input type="number" id="xrpPrice" step="0.01" placeholder="Enter XRP price" required>
+            </div>
+            <div id="inputBox">
+                <label for="xrpMarketCap">Market Cap:</label>
+                <input type="text" id="xrpMarketCap" placeholder="Enter Market Cap" required oninput="formatNumber(this)">
+            </div>
+        </div>
+        <div class="calculator-row">
+            <div id="inputBox">
+                <label for="nftCount">Elder NFT Count:</label>
+                <input type="number" id="nftCount" min="0" placeholder="Enter Elder NFT Count" value="0">
+            </div>
+            <div id="inputBox">
+                <label for="poolPercentage">Pool %:</label>
+                <input type="number" id="poolPercentage" step="0.01" placeholder="Pool %" value="0">
+            </div>
+        </div>
+        <div class="calculator-row">
+            <div id="inputBox">
+                <label class="checkbox-label" for="councilMember">
+                    <input type="checkbox" id="councilMember"> Council Member
+                </label>
+            </div>
+            <div id="inputBox">
+                <label class="checkbox-label" for="sogMember">
+                    <input type="checkbox" id="sogMember"> SOG Member
+                </label>
+            </div>
+        </div>
+        <button onclick="calculate()">CALCULATE</button>
+        <div class="result-columns">
+            <div class="column">
+                <div class="data-box">
+                    <p>Token Value:</p>
+                    <span id="tokenValue">0.00</span>
+                </div>
+                <div class="data-box">
+                    <p>Daily Token Rewards:</p>
+                    <span id="dailyTokenRewards">0</span>
+                </div>
+            </div>
+            <div class="column">
+                <div class="data-box">
+                    <p>Daily XRP Rewards:</p>
+                    <span id="dailyXrpRewards">0</span> XRP
+                </div>
+                <div class="data-box">
+                    <p>Monthly XRP:</p>
+                    <span id="monthlyXrpRewards">0</span> XRP
+                </div>
+            </div>
+            <div class="column">
+                <div class="data-box">
+                    <p>Daily USD:</p>
+                    <span id="dailyUsdRewards">$0.00</span>
+                </div>
+                <div class="data-box">
+                    <p>Monthly USD:</p>
+                    <span id="monthlyUsdRewards">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function formatNumber(input) {
+            // Remove all non-digits
+            let value = input.value.replace(/[^0-9]/g, '');
+            
+            // If there's any number left, convert to number and format
+            if (value) {
+                value = parseInt(value);
+                input.value = value.toLocaleString('en-US'); // Format with commas
+            } else {
+                input.value = ''; // If it's empty or not a number, set it to empty string
+            }
+        }
+
+        function calculate() {
+            const xrpPrice = parseFloat(document.getElementById('xrpPrice').value) || 0;
+            let xrpMarketCap = parseFloat(document.getElementById('xrpMarketCap').value.replace(/,/g, '')) || 0;
+            const nftCount = parseInt(document.getElementById('nftCount').value) || 0;
+            const poolPercentage = parseFloat(document.getElementById('poolPercentage').value) || 0;
+            const councilMember = document.getElementById('councilMember').checked;
+            const sogMember = document.getElementById('sogMember').checked;
+
+            if (xrpPrice <= 0 || xrpMarketCap <= 0) {
+                alert('Please enter valid numbers for XRP Price and Market Cap.');
+                return;
+            }
+
+            const tokenValue = xrpMarketCap / 5890000;
+            let totalTokenRewards = (nftCount * 0.52) + (poolPercentage * 29.05);
+            
+            if (councilMember) totalTokenRewards += 3.59;
+            if (sogMember) totalTokenRewards += 7.68;
+
+            const dailyXrpRewards = totalTokenRewards * tokenValue;
+            const dailyUsdRewards = dailyXrpRewards * xrpPrice;
+
+            document.getElementById('tokenValue').textContent = tokenValue.toFixed(2);
+            document.getElementById('dailyTokenRewards').textContent = totalTokenRewards.toFixed(2);
+            document.getElementById('dailyXrpRewards').textContent = dailyXrpRewards.toFixed(2);
+            document.getElementById('dailyUsdRewards').textContent = `$${dailyUsdRewards.toFixed(2)}`;
+            document.getElementById('monthlyXrpRewards').textContent = (dailyXrpRewards * 31).toFixed(2);
+            document.getElementById('monthlyUsdRewards').textContent = `$${(dailyUsdRewards * 31).toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
