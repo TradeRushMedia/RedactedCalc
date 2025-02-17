@@ -129,11 +129,17 @@
             margin: 10px 0 10px; /* Some space before and after */
             z-index: 1; /* Above images */
         }
+        /* New style for the disclaimer */
+        #disclaimer {
+            font-size: 8px;
+            margin-top: 10px;
+            color: #FFD700;
+        }
     </style>
 </head>
 <body>
     <div id="calculator">
-        <h1>[REDACTED] Calculator</h1>
+        <h1>GNOSIS Reward Calculator</h1>
         <img id="imageTopRight" class="calculator-image" src="https://cdn.xrp.cafe/99287cfdc27d-4bca-9068-497940134d73.webp" alt="Top Right Image">
         <div class="calculator-row">
             <div id="inputBox">
@@ -171,7 +177,7 @@
         <div class="result-columns">
             <div class="column">
                 <div class="data-box">
-                    <p>Token Value:</p>
+                    <p>Token Value in XRP:</p>
                     <span id="tokenValue">0.00</span>
                 </div>
                 <div class="data-box">
@@ -200,6 +206,7 @@
                 </div>
             </div>
         </div>
+        <p id="disclaimer">*For Entertainment Only: Calculations Not Guaranteed to be 100% Accurate</p>
     </div>
     <script>
         function formatNumber(input) {
@@ -228,12 +235,14 @@
                 return;
             }
 
-            const tokenValue = xrpMarketCap / 5890000;
+            // Token value now in XRP terms
+            const tokenValue = xrpMarketCap / (5890000 * xrpPrice);
             let totalTokenRewards = (nftCount * 0.52) + (poolPercentage * 29.05);
             
             if (councilMember) totalTokenRewards += 3.59;
             if (sogMember) totalTokenRewards += 7.68;
 
+            // Changed calculation for daily XRP rewards
             const dailyXrpRewards = totalTokenRewards * tokenValue;
             const dailyUsdRewards = dailyXrpRewards * xrpPrice;
 
